@@ -21,6 +21,7 @@ const MAX_PER_COURSE = 2; // 每位老師同一堂課程最多回饋次數
 /** 第一次使用：在編輯器選 setup 後按「執行」 */
 function setup() {
   const ss = SpreadsheetApp.getActive();
+  if (/^未命名|^Untitled/.test(ss.getName())) ss.rename('金門植物園希望樹｜回饋資料');
   let fb = ss.getSheetByName(SHEET_FEEDBACK) || ss.insertSheet(SHEET_FEEDBACK);
   if (fb.getLastRow() === 0) { fb.appendRow(HEADERS); fb.setFrozenRows(1); }
   fb.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]).setFontWeight('bold'); // 舊版表頭也一併補上新欄位
