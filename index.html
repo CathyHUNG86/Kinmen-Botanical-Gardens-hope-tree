@@ -422,7 +422,7 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
     drawMine();
     const pub=leaves.filter(l=>l.text).slice(-6).reverse();
     $('notes').innerHTML = pub.length ? pub.map(l=>`<div class="note"><p>${esc(l.text)}</p><small>${esc(l.school)}${l.course?' · '+esc(l.course):''}</small></div>`).join('')
-      : `<div class="note"><p>第一則公開留言還在路上。審核通過的回饋會出現在這裡。</p></div>`;
+      : `<div class="note"><p>還沒有留言。成為第一位分享回饋的老師吧！</p></div>`;
   }
 
   /* ===== 載入資料 ===== */
