@@ -110,8 +110,9 @@ main{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:28px;
 .wall h2,.form-card h2{font-family:var(--f-display);font-size:22px;margin:0}
 .wall{display:flex;flex-direction:column;gap:12px;margin-top:8px}
 .notes{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
-.notes{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
-.note{position:relative;min-width:0;aspect-ratio:228/163;background:center/100% 100% no-repeat}
+.notes{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:480px){.notes{grid-template-columns:1fr}}
+.note{position:relative;min-width:0;aspect-ratio:223/163;background:center/100% 100% no-repeat}
 .note-in{position:absolute;inset:27% 9% 9% 9%;overflow:auto;display:flex;flex-direction:column;justify-content:center;gap:4px;text-align:center;color:#FFF7E6;text-shadow:0 1px 2px rgba(50,25,5,.85);font-size:14px;line-height:1.5}
 .note-in p{margin:0;overflow-wrap:anywhere;font-weight:500}
 .note-in small{color:#F3DDB4;font-size:12px}
@@ -184,7 +185,7 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
       <div class="detail empty" id="detail">還沒選葉子。點一片葉子，這裡會顯示它的故事。</div>
 
       <div class="wall">
-        <h2>我的留言</h2>
+        <h2>新長出的葉片們</h2>
         <div class="notes" id="notes"></div>
       </div>
     </section>
@@ -264,13 +265,15 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
   const CHEER_SRC = 'https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/kids-jumping.png';
   const BG_SRC = 'https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/background-sky-grass.jpg';
   const GROUP_SRC = 'https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/group-jumping.png';
-  const SIGN1_SRC = 'https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/sign-1.png';
-  const SIGN2_SRC = 'https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/sign-2.png';
+  const BOARD1_SRC = 'https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/board-1.webp';
+  const BOARD2_SRC = 'https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/board-2.webp';
+  const BOARD3_SRC = 'https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/board-3.webp';
+  const BOARD4_SRC = 'https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/board-4.webp';
   const LEAFBIG0_SRC = 'https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/leaf-big-0.png';
   const LEAFBIG1_SRC = 'https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/leaf-big-1.png';
   const LEAFBIG2_SRC = 'https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/leaf-big-2.png';
   const LEAFBIG3_SRC = 'https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/leaf-big-3.png';
-  const SIGNS = [SIGN1_SRC, SIGN2_SRC];
+  const SIGNS = [BOARD1_SRC, BOARD2_SRC, BOARD3_SRC, BOARD4_SRC];
   const LEAF_BIG = [LEAFBIG0_SRC, LEAFBIG1_SRC, LEAFBIG2_SRC, LEAFBIG3_SRC];
   const LEAF_RATIO = [178/184, 118/171, 154/160, 184/189];
   const KID_SRC = 'https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/kid-magnifier.png';    // 樹形隨機種子；改數字會長成不同造型的樹
@@ -438,8 +441,8 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
     $('count').textContent=leaves.length;
     drawLeaves(newFrom,pulseN);
     drawMine();
-    const pub=leaves.filter(l=>l.text).slice(-6).reverse();
-    const sign=k=>` style="background-image:url('${SIGNS[k%2]}')"`;
+    const pub=leaves.filter(l=>l.text).slice(-4).reverse();
+    const sign=k=>` style="background-image:url('${SIGNS[k%4]}')"`;
     $('notes').innerHTML = pub.length ? pub.map((l,k)=>`<div class="note"${sign(k)}><div class="note-in"><p>${esc(l.text)}</p><small>${esc(l.school)}${l.course?' · '+esc(l.course):''}</small></div></div>`).join('')
       : `<div class="note"${sign(0)}><div class="note-in"><p>還沒有留言。成為第一位分享回饋的老師吧！</p></div></div>`;
   }
