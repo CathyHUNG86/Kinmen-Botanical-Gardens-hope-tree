@@ -92,7 +92,12 @@ main{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:28px;
 .detail .meta{font-size:13px;color:var(--muted)}
 .detail p{margin:8px 0 0;white-space:pre-wrap}
 .detail.empty{color:var(--muted);display:flex;align-items:center}
-.detail.leafy{background:none;border:none;padding:0;display:flex;justify-content:center}
+.detail.leafy{background:none;border:none;padding:0;display:flex;flex-direction:column;align-items:center;gap:12px}
+.lt-photos{width:min(520px,100%);display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+.lt-photos img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.18);cursor:zoom-in;background:#eee}
+.lt-photos .lt-wait{grid-column:1/-1;text-align:center;font-size:13px;color:var(--muted)}
+.photo-view{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;padding:16px;cursor:zoom-out}
+.photo-view img{max-width:100%;max-height:100%;border-radius:8px;box-shadow:0 6px 30px rgba(0,0,0,.5)}
 .leaf-card{position:relative;width:min(330px,100%);max-height:420px;background:center/contain no-repeat}
 .leaf-text{position:absolute;inset:16% 18% 24% 18%;overflow:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;text-align:center;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6),0 0 8px rgba(0,0,0,.25)}
 .leaf-card.k1 .leaf-text{inset:16% 14% 26% 14%}
@@ -426,7 +431,7 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
     const meta=[lf.course, lf.month? lf.month.replace('-',' 年 ')+' 月':'' ].filter(Boolean).join(' · ');
     const body = lf.text ? `<p class="lt-body">${esc(lf.text)}</p>`
       : myText[lf.n] ? `<p class="lt-body">${esc(myText[lf.n])}</p>`
-      : lf.hasPhoto ? `<p class="lt-body lt-dim">這位老師分享了照片回饋。</p>`
+      : lf.hasPhoto ? `<p class="lt-body lt-dim">這位老師分享了照片回饋，請看下方照片。</p>`
       : `<p class="lt-body lt-dim">這則回饋的文字已由主辦單位設為不公開。</p>`;
     d.innerHTML=`<div class="leaf-card k${kind}" style="background-image:url('${LEAF_BIG[kind]}');aspect-ratio:${LEAF_RATIO[kind]}">
       <div class="leaf-text">
@@ -434,8 +439,29 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
         <div class="lt-meta">${esc(lf.school||'一所學校')}${meta?' · '+esc(meta):''}${lf.hasPhoto?' · 附照片':''}</div>
         ${myLeaves.includes(lf.n) ? `<p class="lt-mine">這是您的葉子，謝謝您！</p>` : ''}
         ${body}
-      </div></div>`;
+      </div></div>${lf.hasPhoto ? `<div class="lt-photos" id="ltPhotos"><span class="lt-wait">照片載入中…</span></div>` : ''}`;
+    if(lf.hasPhoto) loadPhotos(lf.n);
   }
+
+  /* ===== 回饋照片：點葉子時才向伺服器讀取，讀過的會記住 ===== */
+  const photoCache={};
+  function showPhotos(n,list){
+    const box=$('ltPhotos'); if(!box || selected===null || leaves[selected].n!==n) return;
+    box.innerHTML = list.length ? list.map((u,k)=>`<img src="${u}" alt="第 ${n} 片葉子的回饋照片 ${k+1}" loading="lazy">`).join('')
+      : `<span class="lt-wait">照片暫時無法顯示。</span>`;
+  }
+  function loadPhotos(n){
+    if(photoCache[n]) return showPhotos(n,photoCache[n]);
+    if(!live){ return showPhotos(n,[]); }
+    google.script.run.withSuccessHandler(list=>{ photoCache[n]=list||[]; showPhotos(n,photoCache[n]); })
+      .withFailureHandler(()=>showPhotos(n,[])).getLeafPhotos(n);
+  }
+  document.addEventListener('click',e=>{
+    const im=e.target.closest('.lt-photos img');
+    if(im){ const v=document.createElement('div'); v.className='photo-view'; v.innerHTML=`<img src="${im.src}" alt="${im.alt}">`;
+      v.onclick=()=>v.remove(); document.body.appendChild(v); return; }
+  });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape') document.querySelectorAll('.photo-view').forEach(v=>v.remove()); });
 
   function render(newFrom,pulseN){
     $('count').textContent=leaves.length;
