@@ -92,6 +92,16 @@ main{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:28px;
 .detail .meta{font-size:13px;color:var(--muted)}
 .detail p{margin:8px 0 0;white-space:pre-wrap}
 .detail.empty{color:var(--muted);display:flex;align-items:center}
+.detail.leafy{background:none;border:none;padding:0;display:flex;justify-content:center}
+.leaf-card{position:relative;width:min(330px,100%);max-height:420px;background:center/contain no-repeat}
+.leaf-text{position:absolute;inset:16% 18% 24% 18%;overflow:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;text-align:center;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6),0 0 8px rgba(0,0,0,.25)}
+.leaf-card.k1 .leaf-text{inset:16% 14% 26% 14%}
+.leaf-card.k3 .leaf-text{inset:22% 22% 28% 22%}
+.leaf-text h3{margin:0;font-size:17px;font-family:var(--f-display)}
+.lt-meta{font-size:12px;opacity:.95}
+.lt-mine{margin:2px 0 0;font-weight:700;color:#FFF3B0}
+.lt-body{margin:4px 0 0;font-size:14px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;font-weight:500}
+.lt-dim{opacity:.9;font-size:13px}
 
 .goal{font-size:13px;color:var(--muted)}
 .bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:6px}
@@ -100,9 +110,11 @@ main{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:28px;
 .wall h2,.form-card h2{font-family:var(--f-display);font-size:22px;margin:0}
 .wall{display:flex;flex-direction:column;gap:12px;margin-top:8px}
 .notes{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
-.note{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-size:14px;min-width:0}
-.note p{margin:0 0 8px;overflow-wrap:anywhere}
-.note small{color:var(--muted)}
+.notes{grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.note{position:relative;min-width:0;aspect-ratio:228/163;background:center/100% 100% no-repeat}
+.note-in{position:absolute;inset:27% 9% 9% 9%;overflow:auto;display:flex;flex-direction:column;justify-content:center;gap:4px;text-align:center;color:#FFF7E6;text-shadow:0 1px 2px rgba(50,25,5,.85);font-size:14px;line-height:1.5}
+.note-in p{margin:0;overflow-wrap:anywhere;font-weight:500}
+.note-in small{color:#F3DDB4;font-size:12px}
 
 .form-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px clamp(16px,3vw,26px);display:flex;flex-direction:column;gap:16px;position:sticky;top:max(16px,env(safe-area-inset-top,0px))}
 @media (max-width:860px){.form-card{position:static}}
@@ -172,7 +184,7 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
       <div class="detail empty" id="detail">還沒選葉子。點一片葉子，這裡會顯示它的故事。</div>
 
       <div class="wall">
-        <h2>樹下留言</h2>
+        <h2>我的留言</h2>
         <div class="notes" id="notes"></div>
       </div>
     </section>
@@ -252,6 +264,15 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
   const CHEER_SRC = 'https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/kids-jumping.png';
   const BG_SRC = 'https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/background-sky-grass.jpg';
   const GROUP_SRC = 'https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/group-jumping.png';
+  const SIGN1_SRC = 'https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/sign-1.png';
+  const SIGN2_SRC = 'https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/sign-2.png';
+  const LEAFBIG0_SRC = 'https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/leaf-big-0.png';
+  const LEAFBIG1_SRC = 'https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/leaf-big-1.png';
+  const LEAFBIG2_SRC = 'https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/leaf-big-2.png';
+  const LEAFBIG3_SRC = 'https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/leaf-big-3.png';
+  const SIGNS = [SIGN1_SRC, SIGN2_SRC];
+  const LEAF_BIG = [LEAFBIG0_SRC, LEAFBIG1_SRC, LEAFBIG2_SRC, LEAFBIG3_SRC];
+  const LEAF_RATIO = [178/184, 118/171, 154/160, 184/189];
   const KID_SRC = 'https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/kid-magnifier.png';    // 樹形隨機種子；改數字會長成不同造型的樹
 
   const live = typeof google !== 'undefined' && google.script && google.script.run;
@@ -350,7 +371,8 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
       const rot=(p.a*180/Math.PI)+90+(r2()-.5)*40;   // 葉柄接在枝條上，葉尖朝外
       const g=mk('g',{class:'leaf',tabindex:'0',role:'button','aria-label':`第 ${lf.n} 片葉子：${lf.school||'某校'}`,
         transform:`translate(${p.x.toFixed(1)} ${p.y.toFixed(1)}) rotate(${rot.toFixed(0)}) scale(${size.toFixed(2)})`});
-      const blade=mk('use',{class:'blade',href:'#lf'+leafKind(r2())});
+      const kind=leafKind(r2()); g.dataset.kind=kind;
+      const blade=mk('use',{class:'blade',href:'#lf'+kind});
       if(newFrom!=null && i>=newFrom){ g.classList.add(lf.n===pulseN?'pulse':'new'); blade.style.animationDelay=((i-newFrom)*40)+'ms'; }
       if(r2()<1/SWAY_EVERY){
         const sw=mk('g',{class:'sway'});
@@ -396,14 +418,20 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
   function select(i,g){
     gL.querySelectorAll('.sel').forEach(x=>x.classList.remove('sel'));
     g.classList.add('sel'); selected=i;
-    const lf=leaves[i], d=$('detail'); d.classList.remove('empty');
+    const lf=leaves[i], d=$('detail'); d.classList.remove('empty'); d.classList.add('leafy');
+    const kind=+(g.dataset.kind||0);
     const meta=[lf.course, lf.month? lf.month.replace('-',' 年 ')+' 月':'' ].filter(Boolean).join(' · ');
-    d.innerHTML=`<h3>第 ${lf.n} 片葉子 · ${esc(lf.school||'一所學校')}</h3><div class="meta">${esc(meta)}${lf.hasPhoto?' · 附照片':''}</div>`+
-      (myLeaves.includes(lf.n) ? `<p class="mine-note">這是您的葉子，謝謝您！</p>` : '')+
-      (lf.text?`<p>${esc(lf.text)}</p>`
-        : myText[lf.n] ? `<p>${esc(myText[lf.n])}</p>`
-        : lf.hasPhoto ? `<p class="meta">這位老師分享了照片回饋。</p>`
-        : `<p class="meta">這則回饋的文字已由主辦單位設為不公開。</p>`);
+    const body = lf.text ? `<p class="lt-body">${esc(lf.text)}</p>`
+      : myText[lf.n] ? `<p class="lt-body">${esc(myText[lf.n])}</p>`
+      : lf.hasPhoto ? `<p class="lt-body lt-dim">這位老師分享了照片回饋。</p>`
+      : `<p class="lt-body lt-dim">這則回饋的文字已由主辦單位設為不公開。</p>`;
+    d.innerHTML=`<div class="leaf-card k${kind}" style="background-image:url('${LEAF_BIG[kind]}');aspect-ratio:${LEAF_RATIO[kind]}">
+      <div class="leaf-text">
+        <h3>第 ${lf.n} 片葉子</h3>
+        <div class="lt-meta">${esc(lf.school||'一所學校')}${meta?' · '+esc(meta):''}${lf.hasPhoto?' · 附照片':''}</div>
+        ${myLeaves.includes(lf.n) ? `<p class="lt-mine">這是您的葉子，謝謝您！</p>` : ''}
+        ${body}
+      </div></div>`;
   }
 
   function render(newFrom,pulseN){
@@ -411,8 +439,9 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
     drawLeaves(newFrom,pulseN);
     drawMine();
     const pub=leaves.filter(l=>l.text).slice(-6).reverse();
-    $('notes').innerHTML = pub.length ? pub.map(l=>`<div class="note"><p>${esc(l.text)}</p><small>${esc(l.school)}${l.course?' · '+esc(l.course):''}</small></div>`).join('')
-      : `<div class="note"><p>還沒有留言。成為第一位分享回饋的老師吧！</p></div>`;
+    const sign=k=>` style="background-image:url('${SIGNS[k%2]}')"`;
+    $('notes').innerHTML = pub.length ? pub.map((l,k)=>`<div class="note"${sign(k)}><div class="note-in"><p>${esc(l.text)}</p><small>${esc(l.school)}${l.course?' · '+esc(l.course):''}</small></div></div>`).join('')
+      : `<div class="note"${sign(0)}><div class="note-in"><p>還沒有留言。成為第一位分享回饋的老師吧！</p></div></div>`;
   }
 
   /* ===== 載入資料 ===== */
