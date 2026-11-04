@@ -191,9 +191,12 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
               <option value="">請選擇</option>
               <option>金門綠之旅</option><option>綠野拾集</option><option>森林美術課</option>
               <option>植物園的魔法課</option><option>尋找綠色風獅爺</option><option>紙想告訴你</option>
-              <option>迷宮森林任務</option><option>其他／不確定</option>
+              <option>迷宮森林任務</option><option>姬兜蟲彩繪DIY</option><option>龍眼雞彩繪DIY</option>
+              <option>鳥偶彩繪DIY</option><option>葉拓帆布袋DIY</option><option value="其他">其他</option>
             </select></label>
         </div>
+        <label for="courseOther" id="courseOtherWrap" hidden>其他課程名稱<span class="opt">請簡單寫下課程或活動名稱</span>
+          <input id="courseOther" type="text" maxlength="17" placeholder="例：校外教學導覽"></label>
 
         <div class="mode" role="group" aria-label="回饋方式">
           <button type="button" id="mText" aria-pressed="true">寫文字</button>
@@ -442,6 +445,7 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
   let mode='text', photos=[];
   function setMode(m){mode=m;$('mText').setAttribute('aria-pressed',m==='text');$('mPhoto').setAttribute('aria-pressed',m==='photo');
     $('textWrap').hidden=m!=='text';$('photoWrap').hidden=m!=='photo';}
+  $('course').addEventListener('change',()=>{ const o=$('course').value==='其他'; $('courseOtherWrap').hidden=!o; if(o) $('courseOther').focus(); });
   $('mText').onclick=()=>setMode('text'); $('mPhoto').onclick=()=>setMode('photo');
   $('drop').onclick=()=>$('file').click();
   $('drop').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('file').click();}};
@@ -479,10 +483,11 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
     if(!v('teacher')) return err.textContent='請填寫教師姓名。';
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v('email'))) return err.textContent='Email 格式看起來不太對，中獎通知會寄到這裡。';
     if(!v('course')) return err.textContent='請選擇參與的課程，每堂課最多可以回饋 2 次。';
+    if(v('course')==='其他' && !v('courseOther')) return err.textContent='選擇「其他」時，請寫下課程或活動名稱。';
     if(mode==='text' && text.length<5) return err.textContent='回饋內容請至少寫一句話。';
     if(mode==='photo' && !photos.length) return err.textContent='請至少選一張照片，或切換成「寫文字」。';
     if(!$('consent').checked) return err.textContent='請勾選同意事項，才能送出與參加抽獎。';
-    const payload={school:v('school'),teacher:v('teacher'),email:v('email'),phone:v('phone'),visit:v('visit'),course:v('course'),
+    const payload={school:v('school'),teacher:v('teacher'),email:v('email'),phone:v('phone'),visit:v('visit'),course:v('course')==='其他' ? '其他：'+v('courseOther') : v('course'),
       text, isPublic:true, photos: mode==='photo'?photos.map(p=>({name:p.name,mime:p.mime,data:p.data})):[]};
     const btn=$('submit'); btn.disabled=true; btn.textContent='正在長出葉子…';
     const done=res=>{btn.disabled=false;btn.textContent='送出回饋，長一片葉子';lastResult=res;onSubmitted(res,payload);};
@@ -509,7 +514,7 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
     $('openSeed').hidden=!p.drawn; $('closeModal').hidden=!!p.drawn;
     $('resultName').hidden=true; $('seedClosed').toggleAttribute('hidden',false); $('seedOpen').toggleAttribute('hidden',true); $('seed').toggleAttribute('hidden',false); $('balloons').hidden=true; $('ribbon').toggleAttribute('hidden',true);
     $('modal').hidden=false; ($('openSeed').hidden?$('closeModal'):$('openSeed')).focus();
-    $('form').reset(); photos=[]; drawThumbs(); setMode('text');
+    $('form').reset(); $('courseOtherWrap').hidden=true; photos=[]; drawThumbs(); setMode('text');
     render(before,res.leafNo);
   }
 
