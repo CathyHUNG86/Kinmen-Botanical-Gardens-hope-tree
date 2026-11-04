@@ -96,8 +96,6 @@ main{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:28px;
 .form-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:22px clamp(16px,3vw,26px);display:flex;flex-direction:column;gap:16px;position:sticky;top:max(16px,env(safe-area-inset-top,0px))}
 @media (max-width:860px){.form-card{position:static}}
 .form-card .lead{margin:0;color:var(--muted);font-size:14px}
-.prize-hint{display:flex;gap:10px;align-items:flex-start;background:var(--gold-soft);border-radius:10px;padding:10px 12px;font-size:14px}
-.prize-hint svg{flex:none;margin-top:3px}
 form{display:flex;flex-direction:column;gap:14px}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media (max-width:480px){.row{grid-template-columns:1fr}}
@@ -124,26 +122,20 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 .btn:disabled{opacity:.6;cursor:wait;transform:none}
 .btn.gold{background:var(--gold);color:#1D1608}
 
-/* 抽獎視窗 */
+/* 送出成功視窗 */
 .modal{position:fixed;inset:0;background:color-mix(in srgb,var(--ink) 55%,transparent);display:grid;place-items:center;padding:20px max(16px,env(safe-area-inset-right,0px)) 20px max(16px,env(safe-area-inset-left,0px));z-index:50}
 .sheet{background:var(--surface);border-radius:20px;max-width:420px;width:100%;padding:28px 24px;text-align:center;display:flex;flex-direction:column;gap:14px;align-items:center}
 .sheet h3{font-family:var(--f-display);font-size:24px;margin:0;text-wrap:balance}
 .sheet p{margin:0;color:var(--muted)}
 .seed{width:120px;height:120px}
-.seed.shake{animation:shake .9s ease-in-out}
-@keyframes shake{0%,100%{transform:rotate(0)}20%{transform:rotate(-12deg)}40%{transform:rotate(10deg)}60%{transform:rotate(-8deg)}80%{transform:rotate(6deg)}}
 #tree .cheer{animation:hop .9s ease-in-out infinite alternate}
 @keyframes hop{from{transform:translateY(0)}to{transform:translateY(-12px)}}
-.balloons{width:min(150px,45%);height:auto;animation:float 2.4s ease-in-out infinite alternate}
-@keyframes float{from{transform:translateY(4px) rotate(-2deg)}to{transform:translateY(-8px) rotate(2deg)}}
-.ribbon{width:min(300px,90%);height:auto;margin-top:-6px;overflow:visible}
-.ribbon-text{font-family:var(--f-display);font-weight:900;font-size:19px;letter-spacing:.08em;fill:#FFFFFF;stroke:#8E1414;stroke-width:2.2;paint-order:stroke;stroke-linejoin:round}
 .result-name{font-family:var(--f-display);font-size:28px;color:var(--gold)}
 footer{color:var(--muted);font-size:13px;padding-block:0 32px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 
-<div class="demo" id="demoBar" hidden>預覽版：樹上的葉子與留言都是範例，送出表單不會儲存資料。　<label for="demoPick" style="display:inline-flex;flex-direction:row;align-items:center;gap:6px;font-weight:700">下次抽獎結果<select id="demoPick" style="width:auto;padding:3px 8px"><option value="win">中獎</option><option value="lose">未中獎</option><option value="random">隨機（約 3 成中獎）</option></select></label></div>
+<div class="demo" id="demoBar" hidden>預覽版：樹上的葉子與留言都是範例，送出表單不會儲存資料。</div>
 
 <div class="wrap">
   <header>
@@ -170,10 +162,6 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
     <aside class="form-card" id="formCard">
       <h2>為希望樹添一片葉子</h2>
       <p class="lead">學生從植物園回去之後，有沒有哪個改變讓您印象深刻？一句話、一張學習單或作品照片都可以。</p>
-      <div class="prize-hint">
-        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--gold)" d="M12 2c3 4 5 6.5 5 10a5 5 0 0 1-10 0c0-3.5 2-6 5-10z"/></svg>
-        <span>送出後可打開一顆「希望種子」參加抽獎，<span id="drawRule">每位老師限抽一次</span>。</span>
-      </div>
 
       <form id="form" novalidate>
         <div class="row">
@@ -181,7 +169,7 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
           <label for="teacher">教師姓名<input id="teacher" type="text" autocomplete="name" maxlength="20"></label>
         </div>
         <div class="row">
-          <label for="email">Email<span class="opt">用於中獎通知</span><input id="email" type="email" autocomplete="email"></label>
+          <label for="email">Email<span class="opt">用來計算回饋次數，不會公開</span><input id="email" type="email" autocomplete="email"></label>
           <label for="phone">聯絡電話<span class="opt">選填</span><input id="phone" type="tel" autocomplete="tel" maxlength="20"></label>
         </div>
         <div class="row">
@@ -216,7 +204,7 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
           <p class="goal" style="margin:6px 0 0">若照片有學生正面，請確認已取得同意，或改拍作品局部。</p>
         </div>
 
-        <label class="check" for="consent"><input id="consent" type="checkbox">我同意回饋內容（不含姓名與聯絡方式）公開在希望樹上，並同意主辦單位蒐集上述資料，僅用於本活動回饋整理與抽獎聯繫，活動結束後依規定處理。</label>
+        <label class="check" for="consent"><input id="consent" type="checkbox">我同意回饋內容（不含姓名與聯絡方式）公開在希望樹上，並同意主辦單位蒐集上述資料，僅用於本活動回饋整理與聯繫，活動結束後依規定處理。</label>
 
         <p class="err" id="err" role="alert"></p>
         <button class="btn" id="submit" type="submit">送出回饋，長一片葉子</button>
@@ -230,30 +218,16 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
 
 <div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mTitle">
   <div class="sheet">
-    <svg class="seed" id="seed" viewBox="0 0 120 120" aria-hidden="true">
-      <g id="seedClosed">
-        <ellipse cx="60" cy="66" rx="34" ry="42" fill="var(--branch)"/>
-        <path d="M60 26c-6 14-6 66 0 82" stroke="var(--bg)" stroke-width="3" fill="none" opacity=".5"/>
-      </g>
-      <g id="seedOpen" hidden>
-        <path d="M26 70a34 40 0 0 0 68 0z" fill="var(--branch)"/>
-        <path d="M60 70c-2-18-14-30-30-32 2 16 14 28 30 32z" fill="var(--leaf2)"/>
-        <path d="M60 70c2-22 16-36 34-38-2 20-16 34-34 38z" fill="var(--leaf1)"/>
-        <circle cx="60" cy="40" r="7" fill="var(--gold)"/>
-      </g>
-    </svg>
-    <img class="balloons" id="balloons" hidden alt="綁著禮物的氣球" src="https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/balloons-gift.png">
-    <svg class="ribbon" id="ribbon" viewBox="0 0 245 67" hidden role="img" aria-label="恭喜中獎！">
-      <image href="https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/ribbon-red.png" x="0" y="0" width="245" height="67"/>
-      <path id="ribbonArc" d="M40 35Q122 19 205 35" fill="none"/>
-      <text class="ribbon-text"><textPath href="#ribbonArc" startOffset="50%" text-anchor="middle">恭喜中獎！</textPath></text>
+    <svg class="seed" viewBox="0 0 120 120" aria-hidden="true">
+      <path d="M26 70a34 40 0 0 0 68 0z" fill="var(--branch)"/>
+      <path d="M60 70c-2-18-14-30-30-32 2 16 14 28 30 32z" fill="var(--leaf2)"/>
+      <path d="M60 70c2-22 16-36 34-38-2 20-16 34-34 38z" fill="var(--leaf1)"/>
+      <circle cx="60" cy="40" r="7" fill="var(--gold)"/>
     </svg>
     <h3 id="mTitle">第 0 片葉子長出來了</h3>
+    <p id="mText2">謝謝您的回饋，這片葉子已經長上希望樹。</p>
     <p class="mine-hint">關閉後，樹上標著「您的葉子」的就是它。</p>
-    <p id="mText2">謝謝您的回饋。打開希望種子，看看有沒有驚喜。</p>
-    <div class="result-name" id="resultName" hidden></div>
-    <button class="btn gold" id="openSeed" type="button">打開希望種子</button>
-    <button class="btn" id="closeModal" type="button" hidden>回到希望樹</button>
+    <button class="btn" id="closeModal" type="button">回到希望樹</button>
   </div>
 </div>
 
@@ -433,8 +407,6 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
     if(live){
       google.script.run.withSuccessHandler(res=>{
         leaves=res.leaves||[]; render(0);
-        if(res.campaign && res.campaign.drawLimit) $('drawRule').textContent=`每位老師限抽 ${res.campaign.drawLimit} 次`;
-        if(res.campaign && !res.campaign.open) $('drawRule').textContent='目前不在抽獎期間，回饋一樣會長成葉子';
       }).withFailureHandler(()=>{$('detail').textContent='希望樹暫時讀取不到，請稍後重新整理。'}).getTree();
     } else {
       $('demoBar').hidden=false; leaves=demoLeaves.slice(); render(0);
@@ -473,7 +445,6 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
   }
 
   /* ===== 送出 ===== */
-  let lastResult=null;
   const demoSent=[];   // 預覽版用來模擬「每堂課 2 次、內容不重複」的規則
   $('form').addEventListener('submit',e=>{
     e.preventDefault(); const err=$('err'); err.textContent='';
@@ -481,16 +452,16 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
     const text = mode==='text' ? v('text') : v('caption');
     if(!v('school')) return err.textContent='請填寫學校名稱。';
     if(!v('teacher')) return err.textContent='請填寫教師姓名。';
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v('email'))) return err.textContent='Email 格式看起來不太對，中獎通知會寄到這裡。';
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v('email'))) return err.textContent='Email 格式看起來不太對，請再確認一次。';
     if(!v('course')) return err.textContent='請選擇參與的課程，每堂課最多可以回饋 2 次。';
     if(v('course')==='其他' && !v('courseOther')) return err.textContent='選擇「其他」時，請寫下課程或活動名稱。';
     if(mode==='text' && text.length<5) return err.textContent='回饋內容請至少寫一句話。';
     if(mode==='photo' && !photos.length) return err.textContent='請至少選一張照片，或切換成「寫文字」。';
-    if(!$('consent').checked) return err.textContent='請勾選同意事項，才能送出與參加抽獎。';
+    if(!$('consent').checked) return err.textContent='請勾選同意事項，才能送出回饋。';
     const payload={school:v('school'),teacher:v('teacher'),email:v('email'),phone:v('phone'),visit:v('visit'),course:v('course')==='其他' ? '其他：'+v('courseOther') : v('course'),
       text, isPublic:true, photos: mode==='photo'?photos.map(p=>({name:p.name,mime:p.mime,data:p.data})):[]};
     const btn=$('submit'); btn.disabled=true; btn.textContent='正在長出葉子…';
-    const done=res=>{btn.disabled=false;btn.textContent='送出回饋，長一片葉子';lastResult=res;onSubmitted(res,payload);};
+    const done=res=>{btn.disabled=false;btn.textContent='送出回饋，長一片葉子';onSubmitted(res,payload);};
     const fail=x=>{btn.disabled=false;btn.textContent='送出回饋，長一片葉子';err.textContent=(x&&x.message?x.message.replace(/^Error:\s*/,''):'送出沒有成功，請檢查網路後再試一次')+'。';};
     if(live){ google.script.run.withSuccessHandler(done).withFailureHandler(fail).submitFeedback(payload); }
     else {
@@ -501,7 +472,7 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
       const ph=payload.photos.map(x=>x.data.length+':'+x.data.slice(-64));
       if(ph.some(k=>mine.some(x=>x.photos.includes(k))) || new Set(ph).size<ph.length) return fail({message:'有照片之前已經上傳過了，請換一張不同的照片'});
       demoSent.push({email:e,course:payload.course,text,photos:ph});
-      setTimeout(()=>{ const pick=$('demoPick').value; const r=pick==='win'?0:pick==='lose'?1:Math.random(); done({leafNo:leaves.length+1, prize: r<.3?{drawn:true,won:true,name:'植物園紀念徽章（範例）'}:{drawn:true,won:false}}); },700); }
+      setTimeout(()=>{ done({leafNo:leaves.length+1}); },700); }
   });
 
   function onSubmitted(res,payload){
@@ -509,29 +480,14 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
     myLeaves.push(res.leafNo); saveMine(); if(payload.text) myText[res.leafNo]=payload.text;
     leaves.push({n:res.leafNo,school:payload.school,course:payload.course,month:payload.visit,text:payload.text,hasPhoto:payload.photos.length>0});
     $('mTitle').textContent=`第 ${res.leafNo} 片葉子長出來了`;
-    const p=res.prize||{};
-    $('mText2').textContent = p.drawn ? '謝謝您的回饋。打開希望種子，看看有沒有驚喜。' : (p.message||'謝謝您的回饋，這片葉子已經長上希望樹。');
-    $('openSeed').hidden=!p.drawn; $('closeModal').hidden=!!p.drawn;
-    $('resultName').hidden=true; $('seedClosed').toggleAttribute('hidden',false); $('seedOpen').toggleAttribute('hidden',true); $('seed').toggleAttribute('hidden',false); $('balloons').hidden=true; $('ribbon').toggleAttribute('hidden',true);
-    $('modal').hidden=false; ($('openSeed').hidden?$('closeModal'):$('openSeed')).focus();
+    $('modal').hidden=false; $('closeModal').focus();
     $('form').reset(); $('courseOtherWrap').hidden=true; photos=[]; drawThumbs(); setMode('text');
     render(before,res.leafNo);
   }
 
-  $('openSeed').onclick=()=>{
-    const seed=$('seed'); seed.classList.remove('shake'); void seed.getBBox(); seed.classList.add('shake');
-    $('openSeed').hidden=true;
-    setTimeout(()=>{
-      $('seedClosed').toggleAttribute('hidden',true); $('seedOpen').toggleAttribute('hidden',false);
-      const p=lastResult.prize;
-      if(p.won){ $('seed').toggleAttribute('hidden',true); $('balloons').hidden=false; $('ribbon').toggleAttribute('hidden',false); $('mText2').textContent='恭喜您抽中！我們會寄 Email 與您聯繫領獎方式。'; $('resultName').textContent=p.name; $('resultName').hidden=false; }
-      else { $('mText2').textContent='這次沒有抽中獎品，但您的葉子已經讓希望樹更茂盛了，謝謝您！'; }
-      $('closeModal').hidden=false; $('closeModal').focus();
-    },950);
-  };
   $('closeModal').onclick=()=>{ $('modal').hidden=true; findMine(); };
   $('findMine').onclick=findMine;
-  document.addEventListener('keydown',e=>{ if(e.key==='Escape' && !$('modal').hidden && !$('closeModal').hidden) $('closeModal').click(); });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape' && !$('modal').hidden) $('closeModal').click(); });
 
   load();
 })();
