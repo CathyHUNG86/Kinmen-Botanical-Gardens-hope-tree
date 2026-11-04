@@ -44,6 +44,9 @@ h1{font-family:var(--f-display);font-weight:900;font-size:clamp(30px,5vw,46px);l
 .growth .grow-3-sapling{height:56px}
 .growth .grow-4-tree{height:84px}
 @media (max-width:480px){.growth .grow-3-sapling{height:44px}.growth .grow-4-tree{height:64px}}
+.header-side{display:flex;align-items:flex-end;gap:20px;margin-left:auto}
+.site-logo{display:block;height:110px;width:auto;max-width:none}
+@media (max-width:600px){header{position:relative}.title-row{padding-right:64px}.site-logo{position:absolute;top:20px;right:0;height:72px}}
 .counter{display:flex;align-items:baseline;gap:8px}
 .counter b{font-family:var(--f-display);font-size:clamp(36px,6vw,54px);color:var(--accent);font-variant-numeric:tabular-nums;line-height:1}
 .counter span{color:var(--muted)}
@@ -156,7 +159,10 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
       </div>
       <div class="growth" aria-hidden="true"><img class="grow-1-seed" alt="" src="https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/grow-1-seed.png"><img class="grow-2-sprout" alt="" src="https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/grow-2-sprout.png"><img class="grow-3-sapling" alt="" src="https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/grow-3-sapling.png"><img class="grow-4-tree" alt="" src="https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/grow-4-tree.png"></div>
     </div>
-    <div class="counter" aria-live="polite"><b id="count">0</b><span>片葉子</span></div>
+    <div class="header-side">
+      <div class="counter" aria-live="polite"><b id="count">0</b><span>片葉子</span></div>
+      <img class="site-logo" alt="金門植物園" src="https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/logo-kinmen-botanical-garden.png">
+    </div>
   </header>
 
   <main>
