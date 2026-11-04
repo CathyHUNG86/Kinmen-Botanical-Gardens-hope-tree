@@ -4,7 +4,7 @@
  * 試算表分頁：
  *   回饋：每一列是一則回饋（＝一片葉子）。同一位老師（以 Email 辨識）同一堂課最多 2 則，
  *         且文字與照片都不能和自己之前送出的重複。送出後立即長出葉子，內容也立即公開（不含姓名與聯絡方式）。
- *         若有不適合公開的內容，把「審核狀態」改成「不公開」即可隱藏文字，葉子仍保留。
+ *         若有不適合公開的內容，把「審核狀態」改成「不公開」即可隱藏文字與照片，葉子仍保留。
  * 照片存在雲端硬碟「希望樹回饋照片」資料夾（僅您可見，不公開）。
  */
 
@@ -75,9 +75,26 @@ function getTree() {
     course: String(r[COL.course]),
     month: monthText_(r[COL.visit]),
     text: r[COL.status] === '不公開' ? '' : String(r[COL.text]),
-    hasPhoto: !!r[COL.photo]
+    hasPhoto: r[COL.status] !== '不公開' && !!r[COL.photo]
   }));
   return { leaves };
+}
+
+/** 點葉子時讀取照片：只給公開中的回饋，照片本身仍保持私人，不必開放雲端硬碟分享 */
+function getLeafPhotos(n) {
+  const fb = SpreadsheetApp.getActive().getSheetByName(SHEET_FEEDBACK);
+  n = Math.floor(Number(n));
+  if (!(n >= 1) || n + 1 > fb.getLastRow()) return [];
+  const r = fb.getRange(n + 1, 1, 1, HEADERS.length).getValues()[0];
+  if (r[COL.status] === '不公開') return [];
+  return String(r[COL.photo] || '').split('\n').filter(Boolean).slice(0, 3).map(u => {
+    const id = (u.match(/[-\w]{25,}/) || [])[0];
+    if (!id) return '';
+    try {
+      const b = DriveApp.getFileById(id).getBlob();
+      return 'data:' + (b.getContentType() || 'image/jpeg') + ';base64,' + Utilities.base64Encode(b.getBytes());
+    } catch (e) { return ''; }
+  }).filter(Boolean);
 }
 
 /** 收到回饋：存資料、存照片，回傳葉子編號 */
@@ -374,11 +391,11 @@ function render(){
     if (r.course) chips += '<span class="chip">' + esc(r.course) + '</span>';
     if (r.visit) chips += '<span class="chip">來園 ' + esc(r.visit) + '</span>';
     if (r.photos.length) chips += '<span class="chip">照片 ' + r.photos.length + ' 張</span>';
-    if (r.hidden) chips += '<span class="chip off">文字已隱藏</span>';
+    if (r.hidden) chips += '<span class="chip off">內容已隱藏</span>';
     var photos = r.photos.map(function(u, i){ return '<a href="' + esc(u) + '" target="_blank">照片' + (i + 1) + '</a>'; }).join('　');
     var acts = isConf
       ? '<span class="ask">確定刪除這則回饋？</span><button class="danger" data-do="del" data-k="' + k + '">刪除</button><button data-do="cancel">取消</button>'
-      : '<button data-do="hide" data-k="' + k + '">' + (r.hidden ? '恢復公開' : '隱藏文字') + '</button><button class="ghost-danger" data-do="ask" data-k="' + k + '">刪除</button>';
+      : '<button data-do="hide" data-k="' + k + '">' + (r.hidden ? '恢復公開' : '隱藏內容') + '</button><button class="ghost-danger" data-do="ask" data-k="' + k + '">刪除</button>';
     h += '<div class="card' + (r.hidden ? ' hidden-fb' : '') + (isSel ? ' sel' : '') + (isConf ? ' confirm' : '') + '">'
       + '<div class="top"><input type="checkbox" data-do="sel" data-k="' + k + '"' + (isSel ? ' checked' : '') + ' aria-label="勾選第 ' + r.leaf + ' 片葉子"><span class="leaf">第 ' + r.leaf + ' 片葉子</span><span class="time">' + esc(r.time) + '</span></div>'
       + '<div class="who">' + esc(r.school) + '・' + esc(r.teacher) + '</div>'
@@ -411,7 +428,7 @@ $('list').addEventListener('click', function(e){
   if (d === 'cancel') { confirming = null; render(); return; }
   if (d === 'del' && r) { doDelete([{row: r.row, ts: r.ts}]); return; }
   if (d === 'hide' && r) {
-    call('adminSetHidden', [r.row, r.ts, !r.hidden], function(){ r.hidden = !r.hidden; render(); toast(r.hidden ? '已隱藏文字，網站上只留下葉子' : '已恢復公開'); });
+    call('adminSetHidden', [r.row, r.ts, !r.hidden], function(){ r.hidden = !r.hidden; render(); toast(r.hidden ? '已隱藏文字與照片，網站上只留下葉子' : '已恢復公開'); });
   }
 });
 $('bulkDel').onclick = function(){
