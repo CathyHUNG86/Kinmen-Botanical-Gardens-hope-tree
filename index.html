@@ -36,6 +36,14 @@ header{padding-block:28px 8px;display:flex;flex-wrap:wrap;align-items:flex-end;j
 .eyebrow{font-size:13px;letter-spacing:.12em;color:var(--muted);margin:0}
 h1{font-family:var(--f-display);font-weight:900;font-size:clamp(30px,5vw,46px);line-height:1.15;margin:4px 0 0;text-wrap:balance}
 .subtitle{font-family:var(--f-display);font-weight:700;font-size:clamp(17px,2.4vw,22px);color:var(--accent);margin:6px 0 0;text-wrap:balance}
+.title-row{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 28px;min-width:0}
+.growth{display:flex;align-items:flex-end;gap:10px;padding-bottom:6px}
+.growth img{display:block;width:auto;max-width:none}
+.growth .grow-1-seed{height:14px}
+.growth .grow-2-sprout{height:30px}
+.growth .grow-3-sapling{height:56px}
+.growth .grow-4-tree{height:84px}
+@media (max-width:480px){.growth .grow-3-sapling{height:44px}.growth .grow-4-tree{height:64px}}
 .counter{display:flex;align-items:baseline;gap:8px}
 .counter b{font-family:var(--f-display);font-size:clamp(36px,6vw,54px);color:var(--accent);font-variant-numeric:tabular-nums;line-height:1}
 .counter span{color:var(--muted)}
@@ -140,10 +148,13 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
 
 <div class="wrap">
   <header>
-    <div>
-      <p class="eyebrow">金門植物園 · 教師回饋募集</p>
-      <h1>金門植物園希望樹</h1>
-      <p class="subtitle">從植物園帶回去的環境種子發芽了嗎？</p>
+    <div class="title-row">
+      <div>
+        <p class="eyebrow">金門植物園 · 教師回饋募集</p>
+        <h1>金門植物園希望樹</h1>
+        <p class="subtitle">從植物園帶回去的環境種子發芽了嗎？</p>
+      </div>
+      <div class="growth" aria-hidden="true"><img class="grow-1-seed" alt="" src="https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/grow-1-seed.png"><img class="grow-2-sprout" alt="" src="https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/grow-2-sprout.png"><img class="grow-3-sapling" alt="" src="https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/grow-3-sapling.png"><img class="grow-4-tree" alt="" src="https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/grow-4-tree.png"></div>
     </div>
     <div class="counter" aria-live="polite"><b id="count">0</b><span>片葉子</span></div>
   </header>
