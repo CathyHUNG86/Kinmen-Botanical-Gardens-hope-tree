@@ -127,7 +127,8 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 .sheet{background:var(--surface);border-radius:20px;max-width:420px;width:100%;padding:28px 24px;text-align:center;display:flex;flex-direction:column;gap:14px;align-items:center}
 .sheet h3{font-family:var(--f-display);font-size:24px;margin:0;text-wrap:balance}
 .sheet p{margin:0;color:var(--muted)}
-.seed{width:120px;height:120px}
+.thanks-tree{width:min(170px,50%);height:auto;transform-origin:50% 100%;animation:thanksSway 2.6s ease-in-out infinite alternate}
+@keyframes thanksSway{from{transform:rotate(-3deg)}to{transform:rotate(3deg)}}
 #tree .cheer{animation:hop .9s ease-in-out infinite alternate}
 @keyframes hop{from{transform:translateY(0)}to{transform:translateY(-12px)}}
 .result-name{font-family:var(--f-display);font-size:28px;color:var(--gold)}
@@ -218,12 +219,7 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
 
 <div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mTitle">
   <div class="sheet">
-    <svg class="seed" viewBox="0 0 120 120" aria-hidden="true">
-      <path d="M26 70a34 40 0 0 0 68 0z" fill="var(--branch)"/>
-      <path d="M60 70c-2-18-14-30-30-32 2 16 14 28 30 32z" fill="var(--leaf2)"/>
-      <path d="M60 70c2-22 16-36 34-38-2 20-16 34-34 38z" fill="var(--leaf1)"/>
-      <circle cx="60" cy="40" r="7" fill="var(--gold)"/>
-    </svg>
+    <img class="thanks-tree" alt="張開雙手微笑的大樹" src="https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/tree-thanks.png">
     <h3 id="mTitle">第 0 片葉子長出來了</h3>
     <p id="mText2">謝謝您的回饋，這片葉子已經長上希望樹。</p>
     <p class="mine-hint">關閉後，樹上標著「您的葉子」的就是它。</p>
