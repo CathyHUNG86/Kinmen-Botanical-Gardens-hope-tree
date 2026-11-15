@@ -280,6 +280,7 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
   const LEAFBIG2_SRC = 'https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/leaf-big-2.png';
   const LEAFBIG3_SRC = 'https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/leaf-big-3.png';
   const BIRD_SRC = 'https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/hoopoe.png';
+  const SWALLOW_SRC = 'https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/swallow.png';
   const SIGNS = [BOARD1_SRC, BOARD2_SRC, BOARD3_SRC, BOARD4_SRC];
   const LEAF_BIG = [LEAFBIG0_SRC, LEAFBIG1_SRC, LEAFBIG2_SRC, LEAFBIG3_SRC];
   const LEAF_RATIO = [178/184, 118/171, 154/160, 184/189];
@@ -426,6 +427,52 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
     if(bird.nextSibling!==ref) svg.insertBefore(bird,ref);
   };
   birdLayer(G+30);
+
+  // 天空中的燕子：在天上繞著飛，偶爾飛出畫面再從另一邊飛回來
+  (function flySwallow(){
+    const SW_W=85, SW_H=SW_W*132/200;
+    const sw=mk('g',{'aria-hidden':'true','pointer-events':'none'});
+    const swImg=mk('image',{href:SWALLOW_SRC,x:(-SW_W/2).toFixed(1),y:(-SW_H/2).toFixed(1),width:SW_W,height:SW_H.toFixed(1)});
+    sw.appendChild(swImg); svg.appendChild(sw);
+    const L=vb.x+40, R=vb.x+vb.w-40, TOP=vb.y+40, LOW=430;   // 只在天空範圍內飛
+    const rnd=(a,b)=>a+Math.random()*(b-a);
+    let p={x:rnd(L,R),y:rnd(TOP,LOW-120)}, ang=Math.random()<.5?0:Math.PI, target=null, away=0, last=0;
+    function pickTarget(){
+      if(Math.random()<0.18){ const right=Math.cos(ang)>0; return {x:right?vb.x+vb.w+120:vb.x-120, y:rnd(TOP,LOW), out:true}; }
+      return {x:rnd(L,R), y:rnd(TOP,LOW)};
+    }
+    function draw(t){
+      const left=Math.cos(ang)<0;
+      let tilt=Math.atan2(Math.sin(ang),Math.abs(Math.cos(ang)))*180/Math.PI;
+      tilt=Math.max(-28,Math.min(28,tilt));
+      const flap=1+0.13*Math.sin(t/55);   // 翅膀拍動
+      sw.setAttribute('transform',`translate(${p.x.toFixed(1)} ${p.y.toFixed(1)}) scale(${left?-1:1} 1) rotate(${tilt.toFixed(1)}) scale(1 ${flap.toFixed(3)})`);
+    }
+    const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+    draw(0); if(reduce) return;
+    target=pickTarget();
+    function step(now){
+      const dt=Math.min(64,now-(last||now))/1000; last=now;
+      if(away>0){
+        away-=dt;
+        if(away<=0){ const fromLeft=Math.random()<.5; p={x:fromLeft?vb.x-100:vb.x+vb.w+100,y:rnd(TOP,LOW-60)}; ang=fromLeft?0:Math.PI; target={x:rnd(L+150,R-150),y:rnd(TOP,LOW)}; sw.style.display=''; }
+        requestAnimationFrame(step); return;
+      }
+      const want=Math.atan2(target.y-p.y,target.x-p.x);
+      let diff=want-ang; diff=Math.atan2(Math.sin(diff),Math.cos(diff));
+      ang+=Math.max(-2.2*dt,Math.min(2.2*dt,diff));   // 慢慢轉彎，飛出弧線
+      const v=170;
+      p.x+=Math.cos(ang)*v*dt; p.y+=Math.sin(ang)*v*dt;
+      if(p.y<TOP-20 && Math.sin(ang)<0) ang=-ang;   // 不要飛出天空上緣
+      if(p.y>LOW+40 && Math.sin(ang)>0) ang=-ang;   // 也不要飛進草地
+      if(Math.hypot(target.x-p.x,target.y-p.y)<50){
+        if(target.out){ away=rnd(2.5,6); sw.style.display='none'; }
+        else target=pickTarget();
+      }
+      draw(now); requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  })();
 
   // 四種葉子插圖（いらすとや）：綠色居多，偶爾夾著秋天的橙葉與紅葉
   const LEAF_IMGS=[{"w":0.963,"src":"https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/leaf-green-3lobe.png"},{"w":0.688,"src":"https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/leaf-green.png"},{"w":0.963,"src":"https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/leaf-orange.png"},{"w":0.975,"src":"https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/leaf-red.png"}];
