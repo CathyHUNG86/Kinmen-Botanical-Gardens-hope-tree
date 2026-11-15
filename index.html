@@ -279,6 +279,7 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
   const LEAFBIG1_SRC = 'https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/leaf-big-1.png';
   const LEAFBIG2_SRC = 'https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/leaf-big-2.png';
   const LEAFBIG3_SRC = 'https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/leaf-big-3.png';
+  const BIRD_SRC = 'https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/hoopoe.png';
   const SIGNS = [BOARD1_SRC, BOARD2_SRC, BOARD3_SRC, BOARD4_SRC];
   const LEAF_BIG = [LEAFBIG0_SRC, LEAFBIG1_SRC, LEAFBIG2_SRC, LEAFBIG3_SRC];
   const LEAF_RATIO = [178/184, 118/171, 154/160, 184/189];
@@ -331,6 +332,11 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
   svg.appendChild(mk('path',{d:`M${SX-205} ${G+18}C${SX-150} ${G-30} ${SX+150} ${G-30} ${SX+205} ${G+18}C${SX+120} ${G+30} ${SX-120} ${G+30} ${SX-205} ${G+18}Z`,fill:'#6E4520'}));
   [[-150,-20],[-105,-62],[-60,-96],[70,-98],[118,-60],[160,-18],[-120,4],[-20,-40],[40,-20],[95,6],[-70,-10],[130,-34]].forEach(([dx,dy],k)=>
     svg.appendChild(mk('ellipse',{cx:SX+dx,cy:G+dy,rx:k%2?6:4,ry:k%2?3.5:2.5,fill:'#5C3818'})));
+
+  // 土堆右下角：一隻戴勝（已水平翻轉，面向樹）
+  const BIRD_H=88, BIRD_W=BIRD_H*185/180, BIRD_CX=SX+262, BIRD_B=G+30;
+  svg.appendChild(mk('ellipse',{class:'ground',cx:BIRD_CX.toFixed(1),cy:BIRD_B.toFixed(1),rx:(BIRD_W*0.32).toFixed(1),ry:(BIRD_W*0.32*0.13).toFixed(1)}));
+  svg.appendChild(mk('image',{href:BIRD_SRC,x:(BIRD_CX-BIRD_W/2).toFixed(1),y:(BIRD_B-BIRD_H).toFixed(1),width:BIRD_W.toFixed(1),height:BIRD_H,'aria-hidden':'true'}));
 
   // 前景人物：越靠近畫面下方越大，營造遠近感（插圖：いらすとや）
   const FG=G+100;
