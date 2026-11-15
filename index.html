@@ -333,10 +333,58 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
   [[-150,-20],[-105,-62],[-60,-96],[70,-98],[118,-60],[160,-18],[-120,4],[-20,-40],[40,-20],[95,6],[-70,-10],[130,-34]].forEach(([dx,dy],k)=>
     svg.appendChild(mk('ellipse',{cx:SX+dx,cy:G+dy,rx:k%2?6:4,ry:k%2?3.5:2.5,fill:'#5C3818'})));
 
-  // 土堆右下角：一隻戴勝（已水平翻轉，面向樹）
-  const BIRD_H=88, BIRD_W=BIRD_H*185/180, BIRD_CX=SX+262, BIRD_B=G+30;
-  svg.appendChild(mk('ellipse',{class:'ground',cx:BIRD_CX.toFixed(1),cy:BIRD_B.toFixed(1),rx:(BIRD_W*0.32).toFixed(1),ry:(BIRD_W*0.32*0.13).toFixed(1)}));
-  svg.appendChild(mk('image',{href:BIRD_SRC,x:(BIRD_CX-BIRD_W/2).toFixed(1),y:(BIRD_B-BIRD_H).toFixed(1),width:BIRD_W.toFixed(1),height:BIRD_H,'aria-hidden':'true'}));
+  // 草地上的戴勝（已水平翻轉，面向左）：在草地上隨機走來走去，偶爾停下來啄地
+  const BIRD_H=88, BIRD_W=BIRD_H*185/180;
+  const bird=mk('g',{'aria-hidden':'true'});
+  const birdBody=mk('g',{});
+  birdBody.appendChild(mk('ellipse',{class:'ground',cx:0,cy:0,rx:(BIRD_W*0.32).toFixed(1),ry:(BIRD_W*0.32*0.13).toFixed(1)}));
+  let birdLayer=null;
+  const birdImg=mk('image',{href:BIRD_SRC,x:(-BIRD_W/2).toFixed(1),y:(-BIRD_H).toFixed(1),width:BIRD_W.toFixed(1),height:BIRD_H});
+  birdBody.appendChild(birdImg); bird.appendChild(birdBody); svg.appendChild(bird);
+  (function walkBird(){
+    const Y_FAR=575, Y_NEAR=1010, X_MIN=vb.x+40, X_MAX=vb.x+vb.w-40;
+    // 樹幹和土堆後方不能走（會像穿過樹），只能從土堆前面或兩側繞過去
+    const blocked=(x,y)=>x>120&&x<500&&y<918;
+    const ok=(x,y)=>x>=X_MIN&&x<=X_MAX&&y>=Y_FAR&&y<=Y_NEAR&&!blocked(x,y);
+    const clear=(a,b)=>{ for(let t=0;t<=1;t+=0.04){ if(!ok(a.x+(b.x-a.x)*t,a.y+(b.y-a.y)*t)) return false; } return true; };
+    const sizeAt=y=>0.55+0.45*Math.min(1,Math.max(0,(y-Y_FAR)/(932-Y_FAR)));   // 越遠越小
+    let p={x:SX+262,y:G+30}, dir=1, target=null, wait=1500, peck=0, last=0;
+    const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function pick(){
+      for(let k=0;k<60;k++){
+        const q={x:X_MIN+Math.random()*(X_MAX-X_MIN), y:Y_FAR+Math.random()*(Y_NEAR-Y_FAR)};
+        if(ok(q.x,q.y)&&clear(p,q)&&Math.hypot(q.x-p.x,q.y-p.y)>120) return q;
+      }
+      return null;
+    }
+    function draw(hop,tilt){
+      const s=sizeAt(p.y);
+      bird.setAttribute('transform',`translate(${p.x.toFixed(1)} ${p.y.toFixed(1)}) scale(${(s*dir).toFixed(3)} ${s.toFixed(3)})`);
+      if(birdLayer) birdLayer(p.y);
+      birdImg.setAttribute('transform',`translate(0 ${(-hop).toFixed(1)}) rotate(${tilt.toFixed(1)} 0 0)`);
+    }
+    draw(0,0);
+    if(reduce) return;
+    function step(now){
+      const dt=Math.min(64,now-(last||now)); last=now;
+      if(!target){
+        wait-=dt;
+        if(peck>0){ peck-=dt; draw(0,-14*Math.max(0,Math.sin(peck/120))); } else draw(0,0);
+        if(wait<=0){
+          target=pick();
+          if(!target){ wait=800; }
+          else dir = target.x>p.x ? -1 : 1;   // 圖片本身面向左，往右走就翻過來
+        }
+      } else {
+        const dx=target.x-p.x, dy=target.y-p.y, d=Math.hypot(dx,dy);
+        const v=55*sizeAt(p.y)*dt/1000;   // 遠處看起來走得比較慢
+        if(d<=v){ p={...target}; target=null; wait=1200+Math.random()*3500; peck=Math.random()<0.6?700+Math.random()*900:0; draw(0,0); }
+        else { p={x:p.x+dx/d*v, y:p.y+dy/d*v}; draw(Math.abs(Math.sin(now/110))*7,0); }
+      }
+      requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  })();
 
   // 前景人物：越靠近畫面下方越大，營造遠近感（插圖：いらすとや）
   const FG=G+100;
@@ -344,7 +392,7 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
   // 左前方：跳起來的兩個小朋友
   const CH_H=190, CH_W=CH_H*420/281, CH_X=-140;
   shadow(CH_X+CH_W/2,FG,CH_W*0.36);
-  svg.appendChild(mk('image',{class:'cheer',href:CHEER_SRC,x:CH_X.toFixed(1),y:(FG-18-CH_H).toFixed(1),width:CH_W.toFixed(1),height:CH_H,'aria-hidden':'true'}));
+  const cheerImg=svg.appendChild(mk('image',{class:'cheer',href:CHEER_SRC,x:CH_X.toFixed(1),y:(FG-18-CH_H).toFixed(1),width:CH_W.toFixed(1),height:CH_H,'aria-hidden':'true'}));
   // 左上方草地：拿放大鏡的小朋友（左右翻轉，面向右邊的樹）
   const KID_H=150, KID_W=KID_H*171/260, KID_X=vb.x+160, KID_B=G-190;
   shadow(KID_X+KID_W*0.45,KID_B,KID_W*0.45);
@@ -359,6 +407,7 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
   const grp=mk('image',{class:'cheer',href:GROUP_SRC,x:GR_X.toFixed(1),y:(GR_B-18-GR_H).toFixed(1),width:GR_W.toFixed(1),height:GR_H,'aria-hidden':'true'});
   grp.style.animationDelay='-.45s'; svg.appendChild(grp);
   const gL=mk('g',{}); svg.appendChild(gL);
+  svg.insertBefore(cheerImg,gL);   // 人物依遠近排列：放大鏡小孩 → 右上團體 → 左下小朋友 → 坐著的大人
 
   let leaves=[], selected=null;
   // 老師自己的葉子：記在這台裝置的瀏覽器裡，下次回來也找得到
@@ -368,7 +417,15 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
   function saveMine(){ try{ localStorage.setItem(MY_KEY,JSON.stringify(myLeaves.slice(-20))); }catch(e){} }
   const gM=mk('g',{class:'mine-layer','aria-hidden':'true'}); svg.appendChild(gM);
   // 坐在草地上的兩位大人放在最上層，不被其他人物或葉子蓋住
-  svg.appendChild(mk('image',{href:PAIR_SRC,x:PAIR_X.toFixed(1),y:(FG+10-PAIR_H).toFixed(1),width:PAIR_W.toFixed(1),height:PAIR_H,'aria-hidden':'true'}));
+  const pairImg=svg.appendChild(mk('image',{href:PAIR_SRC,x:PAIR_X.toFixed(1),y:(FG+10-PAIR_H).toFixed(1),width:PAIR_W.toFixed(1),height:PAIR_H,'aria-hidden':'true'}));
+  // 戴勝依遠近插進人物之間：比牠前面（腳的位置更低）的人會擋住牠，比較遠的人不會
+  const depthOrder=[[kidFlip,KID_B],[grp,GR_B-18],[cheerImg,FG-18],[pairImg,FG+10]];
+  birdLayer=y=>{
+    const front=depthOrder.find(([,fy])=>fy>y);
+    const ref=front?front[0]:null;
+    if(bird.nextSibling!==ref) svg.insertBefore(bird,ref);
+  };
+  birdLayer(G+30);
 
   // 四種葉子插圖（いらすとや）：綠色居多，偶爾夾著秋天的橙葉與紅葉
   const LEAF_IMGS=[{"w":0.963,"src":"https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/leaf-green-3lobe.png"},{"w":0.688,"src":"https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/leaf-green.png"},{"w":0.963,"src":"https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/leaf-orange.png"},{"w":0.975,"src":"https://cdn.jsdelivr.net/gh/CathyHUNG86/Kinmen-Botanical-Gardens-hope-tree@main/images/leaf-red.png"}];
