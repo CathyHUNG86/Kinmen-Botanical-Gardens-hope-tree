@@ -445,8 +445,8 @@ footer{color:var(--muted);font-size:13px;padding-block:0 32px}
       const left=Math.cos(ang)<0;
       let tilt=Math.atan2(Math.sin(ang),Math.abs(Math.cos(ang)))*180/Math.PI;
       tilt=Math.max(-28,Math.min(28,tilt));
-      const flap=1+0.13*Math.sin(t/55);   // 翅膀拍動
-      sw.setAttribute('transform',`translate(${p.x.toFixed(1)} ${p.y.toFixed(1)}) scale(${left?-1:1} 1) rotate(${tilt.toFixed(1)}) scale(1 ${flap.toFixed(3)})`);
+      const bob=3*Math.sin(t/260);   // 飛行時輕輕上下起伏（不縮放圖片）
+      sw.setAttribute('transform',`translate(${p.x.toFixed(1)} ${(p.y+bob).toFixed(1)}) scale(${left?-1:1} 1) rotate(${tilt.toFixed(1)})`);
     }
     const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
     draw(0); if(reduce) return;
